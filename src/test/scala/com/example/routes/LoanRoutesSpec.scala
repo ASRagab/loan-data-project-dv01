@@ -129,4 +129,26 @@ class LoanRoutesSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers with H
         .sorted(toOrdering(LoanAmount))
     }
   }
+
+  it should "return bad request if size is less than 1" in {
+    for {
+      response <- loanRoutes.orNotFound.run(
+                    Request(method = Method.POST, uri = uri"/api/loans")
+                      .withEntity(LoanDataFilters(0, None, None, None))
+                  )
+    } yield {
+      response.status shouldBe BadRequest
+    }
+  }
+
+  it should "return bad request if fico is negative" in {
+    for {
+      response <- loanRoutes.orNotFound.run(
+                    Request(method = Method.POST, uri = uri"/api/loans")
+                      .withEntity(LoanDataFilters(LoanDataFilters.Default.size, None, None, Some(-1)))
+                  )
+    } yield {
+      response.status shouldBe BadRequest
+    }
+  }
 }
