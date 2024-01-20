@@ -59,8 +59,10 @@ class LoanRoutesSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers with H
 
       val allFilters = minIssuedDateFilter |+| gradeFilter |+| ficoFilter
 
-      val filtered = loanList.take(filters.size).filter(allFilters)
-      filters.sortType.map(sortType => filtered.sorted(toOrdering(sortType))).getOrElse(filtered).pure[IO]
+      val filtered         = loanList.take(filters.size).filter(allFilters)
+      val resolvedOrdering = toOrdering(filters.sortType.getOrElse(Default))
+
+      filtered.sorted(resolvedOrdering).pure[IO]
     }
   }
 
