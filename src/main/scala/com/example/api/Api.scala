@@ -20,6 +20,6 @@ class Api[F[_]: Concurrent: Logger] private (loanDataRepo: LoanDataRepo[F]) {
 }
 
 object Api {
-  def apply[F[_]: Concurrent: Logger](loanDataRepo: LoanDataRepo[F]): Resource[F, Api[F]] =
-    Resource.pure(new Api[F](loanDataRepo))
+  def apply[F[_]: Concurrent: Logger](loanDataRepo: LoanDataRepo[F]): Api[F] =
+    new Api[F](loanDataRepo)
 }

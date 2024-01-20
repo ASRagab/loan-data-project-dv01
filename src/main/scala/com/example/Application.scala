@@ -19,8 +19,8 @@ object Application extends IOApp.Simple {
     for {
       xa     <- Database.make[IO](config.db)
       cache  <- Cache.make[IO](config.cache)
-      repo   <- LoanDataPostgresRepo[IO](xa, cache).toResource
-      api    <- Api[IO](repo)
+      repo    = LoanDataPostgresRepo[IO](xa, cache)
+      api     = Api[IO](repo)
       server <- EmberServerBuilder
                   .default[IO]
                   .withHost(config.ember.host)

@@ -60,6 +60,6 @@ object LoanDataPostgresRepo {
   def apply[F[_]: MonadCancelThrow: Logger](
       xa: Transactor[F],
       cache: Cache[F]
-  ): F[LoanDataRepo[F]] =
-    new LoanDataPostgresRepo[F](xa, cache).pure[F]
+  ): LoanDataRepo[F] =
+    new LoanDataPostgresRepo[F](xa, cache)
 }
