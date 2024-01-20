@@ -1,36 +1,44 @@
-POST http://localhost:4041/api/loans
+# @name Sort by loanAmount
+POST http://localhost:4041/api/loans?sortType=loanAmount
 Content-Type: application/json
 
 {
-  "size": 10
+  "size": 5
 }
 
 ###
+
+# @name = Filter by size, minIssuedDate, minFico, grade
 POST http://localhost:4041/api/loans
 Content-Type: application/json
 
 {
-  "size":10,
+  "size": 2,
   "minIssuedDate": "Dec-2017",
-  "minFico": 551,
+  "minFico": 775,
   "grade": "A"
 }
 
 ###
-POST http://localhost:4041/api/loans
+
+# @name = Filter by minFico Sort by issuedDate
+POST http://localhost:4041/api/loans?sortType=issuedDate
 Content-Type: application/json
 
 {
-  "size":10,
-  "sortType": "LoanAmount",
-  "minFico": 781
+  "size": 10,
+  "minFico": 799
 }
 
 ###
-POST http://localhost:4041/api/loans
+
+# @name = Size 1000 Filter by grade Sort by grade
+POST http://localhost:4041/api/loans?sortType=grade
 Content-Type: application/json
 
 {
   "size":1000,
-  "sortType": "LoanAmount"
+  "grade": "C"
 }
+
+###

@@ -60,8 +60,6 @@ Some of the tests use `testcontainers` for Postgres and Redis.
 - There are some tests and they are useful, but I wished I had some time to request body deserialization tests, also
   fewer "magic" primitives.
 - GraphQL, I can see how it would be valuable for this data, given the number of columns one might need to search for and ranges
-- Sorting, not completely impressed with the sorting implementation, seems verbose, and the optionality made some parts of the 
-  code messier than I would hope
 - Validation of Payload could stand to use Validated instead of Either
 
 

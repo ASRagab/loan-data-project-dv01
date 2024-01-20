@@ -3,6 +3,7 @@ package com.example.repository
 import cats.effect.IO
 import cats.effect.kernel.Resource
 import cats.effect.testing.scalatest.AsyncIOSpec
+import com.example.domain.SortType.{Grade, IssuedDate, LoanAmount}
 import com.example.domain.{LoanData, LoanDataFilters, SortType}
 import com.example.fixtures.{LoanDataFixture, RepoFixture}
 import org.scalatest.flatspec.AsyncFlatSpec
@@ -19,11 +20,9 @@ class LoanDataRepoSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers with
   it should "return loan data in default order with all issued dates occurring after Jan-2014" in {
     Resource.both(transactor, cache).use { case (xa, cache) =>
       for {
-        repo     <- LoanDataPostgresRepo[IO](xa, cache)
-        loanData <- repo.findBy(
+        loanData <- LoanDataPostgresRepo[IO](xa, cache).findBy(
                       LoanDataFilters(
-                        Some(LoanDataFilters.Default.size),
-                        LoanDataFilters.Default.sortType,
+                        LoanDataFilters.Default.size,
                         Some(YearMonth.of(2014, 1)),
                         None,
                         None
@@ -40,8 +39,8 @@ class LoanDataRepoSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers with
   it should "return loan data in order of loan amount high to low with all grade A loans" in {
     Resource.both(transactor, cache).use { case (xa, cache) =>
       for {
-        repo     <- LoanDataPostgresRepo[IO](xa, cache)
-        loanData <- repo.findBy(LoanDataFilters(Some(5), Some(SortType.LoanAmount), None, Some("A"), None))
+        loanData <- LoanDataPostgresRepo[IO](xa, cache)
+                      .findBy(LoanDataFilters(5, None, Some("A"), None).withSortType(LoanAmount))
       } yield {
         loanData should have size 5
         loanData.head.loanAmount shouldBe Some(40000)
@@ -54,12 +53,13 @@ class LoanDataRepoSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers with
   it should "return loan data in order of issued_date most recent to least recent and min fico above 660" in {
     Resource.both(transactor, cache).use { case (xa, cache) =>
       for {
-        repo     <- LoanDataPostgresRepo[IO](xa, cache)
-        loanData <- repo.findBy(LoanDataFilters(Some(5), Some(SortType.IssuedDate), None, None, Some(661)))
+        loanData <-
+          LoanDataPostgresRepo[IO](xa, cache).findBy(LoanDataFilters(5, None, None, Some(661)).withSortType(IssuedDate))
       } yield {
         loanData should have size 5
         loanData.head.issuedDate shouldBe Some("Dec-2022")
         loanData.last.issuedDate shouldBe Some("Dec-2018")
+        loanData.forall(_.ficoRangeLow.exists(_ >= 661)) shouldBe true
       }
     }
   }
@@ -67,8 +67,7 @@ class LoanDataRepoSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers with
   it should "return loan data in order of grade and subgrade" in {
     Resource.both(transactor, cache).use { case (xa, cache) =>
       for {
-        repo     <- LoanDataPostgresRepo[IO](xa, cache)
-        loanData <- repo.findBy(LoanDataFilters(Some(5), Some(SortType.Grade), None, None, None))
+        loanData <- LoanDataPostgresRepo[IO](xa, cache).findBy(LoanDataFilters(5, None, None, None).withSortType(Grade))
       } yield {
         loanData should have size 5
         loanData.head.grade shouldBe Some("A")
@@ -82,8 +81,7 @@ class LoanDataRepoSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers with
   it should "it should cache the loan data" in {
     Resource.both(transactor, cache).use { case (xa, cache) =>
       for {
-        repo           <- LoanDataPostgresRepo[IO](xa, cache)
-        loanData       <- repo.findBy(LoanDataFilters.Default)
+        loanData       <- LoanDataPostgresRepo[IO](xa, cache).findBy(LoanDataFilters.Default)
         cachedLoanData <- cache.get[LoanDataFilters, LoanData](LoanDataFilters.Default)
       } yield {
         loanData should have size 10
@@ -95,8 +93,7 @@ class LoanDataRepoSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers with
   it should "invalidate the cache after the provided ttl" in {
     Resource.both(transactor, cache).use { case (xa, cache) =>
       for {
-        repo           <- LoanDataPostgresRepo[IO](xa, cache)
-        loanData       <- repo.findBy(LoanDataFilters.Default)
+        loanData       <- LoanDataPostgresRepo[IO](xa, cache).findBy(LoanDataFilters.Default)
         _              <- cache.get[LoanDataFilters, LoanData](LoanDataFilters.Default) *> IO.sleep(cache.ttl)
         cachedLoanData <- cache.get[LoanDataFilters, LoanData](LoanDataFilters.Default)
       } yield {

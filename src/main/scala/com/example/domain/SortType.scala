@@ -7,13 +7,18 @@ import io.circe.*
 
 import scala.util.Try
 
-enum SortType {
-  case Default, IssuedDate, LoanAmount, Grade, FicoLow, FicoHigh
+enum SortType(val value: String) {
+  case Default    extends SortType("default")
+  case IssuedDate extends SortType("issuedDate")
+  case LoanAmount extends SortType("loanAmount")
+  case Grade      extends SortType("grade")
+  case FicoLow    extends SortType("ficoLow")
+  case FicoHigh   extends SortType("ficoHigh")
 }
 
 object SortType {
-  given Encoder[SortType] = Encoder.encodeString.contramap[SortType](sortType => sortType.toString)
-  given Decoder[SortType] = Decoder.decodeString.map(str => Try(SortType.valueOf(str)).toOption.getOrElse(Default))
+  given Encoder[SortType] = Encoder.encodeString.contramap[SortType](sortType => sortType.value)
+  given Decoder[SortType] = Decoder.decodeString.map(fromString)
 
   val issueDate: Ordering[LoanData] = {
     val format = new SimpleDateFormat("MMM-yyyy")
@@ -26,6 +31,15 @@ object SortType {
     Ordering.Tuple2[Option[String], Option[String]].on(loan => (loan.grade, loan.subGrade))
   val ficoLow: Ordering[LoanData]    = Ordering.by(_.ficoRangeLow)
   val ficoHigh: Ordering[LoanData]   = Ordering.by(_.ficoRangeHigh)
+
+  def fromString(s: String): SortType = s match {
+    case IssuedDate.value => IssuedDate
+    case LoanAmount.value => LoanAmount
+    case Grade.value      => Grade
+    case FicoLow.value    => FicoLow
+    case FicoHigh.value   => FicoHigh
+    case _                => Default
+  }
 
   extension (sortType: SortType) {
     def toFragment: Fragment =

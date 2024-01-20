@@ -14,32 +14,33 @@ import java.time.{Clock, YearMonth}
 
 case class LoanDataFilters private (
     size: Int,
-    sortType: Option[SortType] = Some(SortType.Default),
     minIssuedDate: Option[YearMonth],
     grade: Option[String],
-    minFico: Option[Int]
-)
+    minFico: Option[Int],
+    sortType: Option[SortType]
+) { self =>
+  def withSortType(s: SortType): LoanDataFilters = self.copy(sortType = Some(s))
+}
 
 object LoanDataFilters {
-  val Default: LoanDataFilters = LoanDataFilters(10, Some(SortType.Default), None, None, None)
+  val Default: LoanDataFilters = LoanDataFilters(10, None, None, None, Some(SortType.Default))
 
   def apply(
-      size: Option[Int],
-      sortType: Option[SortType],
+      size: Int,
       minIssuedDate: Option[YearMonth],
       grade: Option[String],
       minFico: Option[Int]
   ): LoanDataFilters =
-    LoanDataFilters(
-      size.getOrElse(Default.size),
-      sortType.orElse(Some(SortType.Default)),
+    new LoanDataFilters(
+      size,
       minIssuedDate,
       grade,
-      minFico
+      minFico,
+      None
     )
 
   def validator[F[_]: Applicative](loanDataFilters: LoanDataFilters): F[Either[FailureResponse, LoanDataFilters]] = {
-    val LoanDataFilters(size, sortType, minIssuedDate, grade, minFico) = loanDataFilters
+    val LoanDataFilters(size, minIssuedDate, grade, minFico, _) = loanDataFilters
 
     val conditions: Boolean =
       List(
@@ -62,8 +63,9 @@ object LoanDataFilters {
   }
 
   val issuedDateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("MMM-yyyy")
-  given Encoder[YearMonth]                = Encoder.encodeYearMonthWithFormatter(issuedDateFormat)
-  given Decoder[YearMonth]                = Decoder.decodeYearMonthWithFormatter(issuedDateFormat)
+
+  given Encoder[YearMonth] = Encoder.encodeYearMonthWithFormatter(issuedDateFormat)
+  given Decoder[YearMonth] = Decoder.decodeYearMonthWithFormatter(issuedDateFormat)
 
   given Decoder[LoanDataFilters] = deriveDecoder[LoanDataFilters]
   given Encoder[LoanDataFilters] = deriveEncoder[LoanDataFilters]

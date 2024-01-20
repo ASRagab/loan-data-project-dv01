@@ -1,5 +1,6 @@
 package com.example.routes
 
+import cats.Semigroup
 import cats.effect.IO
 import cats.implicits.*
 import cats.effect.testing.scalatest.AsyncIOSpec
@@ -22,20 +23,43 @@ class LoanRoutesSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers with H
   given Logger[IO] = Slf4jLogger.getLogger[IO]
 
   val loanDataRepo = new LoanDataRepo[IO] {
-    override def findBy(filters: LoanDataFilters): IO[Vector[LoanData]] = {
-      val LoanDataFilters(_, _, minIssuedDate, grade, minFico) = filters
+    private given Semigroup[LoanData => Boolean] = (first: LoanData => Boolean, second: LoanData => Boolean) =>
+      loanData => first(loanData) && second(loanData)
 
-      val conditionalFilters: LoanData => Boolean = List(
-        minIssuedDate.map(date =>
-          (item: LoanData) => item.issuedDate.flatMap(dt => parseLocalDate(dt).map(_.compareTo(date) >= 0))
-        ),
-        grade.map(grade => (item: LoanData) => item.grade.map(_ >= grade)),
-        minFico.map(fico => (item: LoanData) => item.ficoRangeLow.map(_ >= fico))
-      ).flatten.foldLeft((item: LoanData) => true) { case (combined, filter) =>
-        item => combined(item) && filter(item).getOrElse(false)
+    override def findBy(filters: LoanDataFilters): IO[Vector[LoanData]] = {
+      val LoanDataFilters(_, minIssuedDate, grade, minFico, _) = filters
+
+      val minIssuedDateFilter = (data: LoanData) => {
+        val maybe = for {
+          issuedDate    <- data.issuedDate
+          issuedDateYM  <- parseLocalDate(issuedDate)
+          minIssuedDate <- minIssuedDate
+        } yield minIssuedDate.compareTo(issuedDateYM) <= 0
+
+        maybe.getOrElse(true)
       }
 
-      val filtered = loanList.take(filters.size).filter(conditionalFilters)
+      val gradeFilter = (data: LoanData) => {
+        val maybe = for {
+          loanGrade   <- data.grade
+          filterGrade <- grade
+        } yield loanGrade >= filterGrade
+
+        maybe.getOrElse(true)
+      }
+
+      val ficoFilter = (data: LoanData) => {
+        val maybe = for {
+          loanFico   <- data.ficoRangeLow
+          filterFico <- minFico
+        } yield loanFico >= filterFico
+
+        maybe.getOrElse(true)
+      }
+
+      val allFilters = minIssuedDateFilter |+| gradeFilter |+| ficoFilter
+
+      val filtered = loanList.take(filters.size).filter(allFilters)
       filters.sortType.map(sortType => filtered.sorted(toOrdering(sortType))).getOrElse(filtered).pure[IO]
     }
   }
@@ -62,9 +86,9 @@ class LoanRoutesSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers with H
     for {
       response <-
         loanRoutes.orNotFound.run(
-          Request(method = Method.POST, uri = uri"/api/loans")
+          Request(method = Method.POST, uri = uri"/api/loans?sortType=issuedDate")
             .withEntity(
-              LoanDataFilters(Some(2), Some(IssuedDate), Some(YearMonth.of(2017, 12)), None, None)
+              LoanDataFilters(2, Some(YearMonth.of(2017, 12)), None, None)
             )
         )
       body     <- response.as[Vector[LoanData]]
@@ -81,7 +105,7 @@ class LoanRoutesSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers with H
     for {
       response <- loanRoutes.orNotFound.run(
                     Request(method = Method.POST, uri = uri"/api/loans")
-                      .withEntity(LoanDataFilters(Some(2), None, None, None, Some(750)))
+                      .withEntity(LoanDataFilters(2, None, None, Some(750)))
                   )
       body     <- response.as[Vector[LoanData]]
     } yield {
@@ -93,8 +117,8 @@ class LoanRoutesSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers with H
   it should "return a collection of loan data ordered based on sortType and grade if no size is requested" in {
     for {
       response <- loanRoutes.orNotFound.run(
-                    Request(method = Method.POST, uri = uri"/api/loans")
-                      .withEntity(LoanDataFilters(None, Some(LoanAmount), None, Some("A"), None))
+                    Request(method = Method.POST, uri = uri"/api/loans?sortType=loanAmount")
+                      .withEntity(LoanDataFilters(LoanDataFilters.Default.size, None, Some("A"), None))
                   )
       body     <- response.as[Vector[LoanData]]
     } yield {
