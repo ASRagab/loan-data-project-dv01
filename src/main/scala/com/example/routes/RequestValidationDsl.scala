@@ -1,8 +1,8 @@
 package com.example.routes
 
 import cats.MonadThrow
+import cats.data.EitherT
 import cats.implicits.*
-import com.example.logging.syntax.*
 import io.circe.generic.semiauto.*
 import io.circe.syntax.*
 import io.circe.{Decoder, Encoder}
@@ -13,17 +13,23 @@ import org.typelevel.log4cats.Logger
 
 trait RequestValidationDsl[F[_]: MonadThrow: Logger] extends Http4sDsl[F] {
   extension (request: Request[F])
-    def validate[A](validator: A => F[Either[FailureResponse, A]])(logic: A => F[Response[F]])(using
+    def validate[A](validator: A => F[Either[FailureResponse, A]])(handler: A => F[Response[F]])(using
         decoder: EntityDecoder[F, A]
-    ): F[Response[F]] =
-      request
-        .as[A]
-        .logError(e => s"Failed to parse request: $e")
-        .flatMap(validator)
-        .flatMap {
-          case Left(failure) => BadRequest(failure.asJson)
-          case Right(valid)  => logic(valid)
-        }
+    ): F[Response[F]] = {
+      val result = for {
+        entity    <- request
+                       .attemptAs[A]
+                       .leftSemiflatMap(failure =>
+                         Logger[F].error(failure)("Failed to decode request body") *> BadRequest(
+                           FailureResponse(s"Failed to decode request body ${failure.getMessage}").asJson
+                         )
+                       )
+        validated <- EitherT(validator(entity)).leftSemiflatMap(failure => BadRequest(failure.asJson))
+        response  <- EitherT.liftF(handler(validated))
+      } yield response
+
+      result.value.map(_.merge)
+    }
 }
 
 case class FailureResponse(error: String)

@@ -53,7 +53,6 @@ class LoanDataPostgresRepo[F[_]: MonadCancelThrow: Logger] private (
                     .onError(Logger[F].error(_)("Error while fetching loans"))
                 }(_.pure[F])
     } yield loans
-
 }
 
 object LoanDataPostgresRepo {
