@@ -1,0 +1,36 @@
+POST http://localhost:4041/api/loans
+Content-Type: application/json
+
+{
+  "size": 10
+}
+
+###
+POST http://localhost:4041/api/loans
+Content-Type: application/json
+
+{
+  "size":10,
+  "minIssuedDate": "Dec-2017",
+  "minFico": 551,
+  "grade": "A"
+}
+
+###
+POST http://localhost:4041/api/loans
+Content-Type: application/json
+
+{
+  "size":10,
+  "sortType": "LoanAmount",
+  "minFico": 781
+}
+
+###
+POST http://localhost:4041/api/loans
+Content-Type: application/json
+
+{
+  "size":1000,
+  "sortType": "LoanAmount"
+}

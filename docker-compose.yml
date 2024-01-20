@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - "./sql:/docker-entrypoint-initdb.d"
+      - "./sql:/data"
+    environment:
+        - "POSTGRES_USER=dv01"
+        - "POSTGRES_PASSWORD=dv01"
+    ports:
+        - "5432:5432"
+  cache:
+    image: redis
+    restart: always
+    command: redis-server --requirepass dv01
+    ports:
+        - "6379:6379"
+    volumes:
+        - "./redis:/var/lib/redis/data"
