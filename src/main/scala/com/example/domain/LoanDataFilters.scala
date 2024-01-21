@@ -80,7 +80,7 @@ object LoanDataFilters {
         filters.grade.map(gr => fr"grade <= $gr"),
         filters.minFico.map(fico => fr"fico_range_low >= $fico")
       )
-      
+
       val sortTypeFragment = filters.sortType.map(_.toFragment).getOrElse(SortType.Default.toFragment)
       val limitFragment    = fr"LIMIT ${filters.size}"
 
