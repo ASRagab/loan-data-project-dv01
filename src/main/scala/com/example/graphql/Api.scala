@@ -3,7 +3,6 @@ package com.example.graphql
 import caliban.*
 import cats.effect.Async
 import cats.effect.std.Dispatcher
-import com.example.graphql.models.{*, given}
 import com.example.repository.LoanDataRepo
 import org.typelevel.log4cats.Logger
 

@@ -6,6 +6,7 @@ import cats.effect.std.Dispatcher
 import com.example.api.Api
 import com.example.config.syntax.*
 import com.example.config.{AppConfig, ServerType}
+import com.example.graphql.{Route => GraphQLRoute, Api => GraphQLApi}
 import com.example.repository.LoanDataPostgresRepo
 import com.example.services.*
 import org.http4s.ember.server.EmberServerBuilder
@@ -19,7 +20,7 @@ object Application extends IOApp.Simple {
 
   given zio.Runtime[Any] = zio.Runtime.default
 
-  def runServer(config: AppConfig): Resource[IO, Server] =
+  private def runServer(config: AppConfig): Resource[IO, Server] =
     for {
       xa     <- Database.make[IO](config.db)
       cache  <- Cache.make[IO](config.cache)
@@ -36,21 +37,21 @@ object Application extends IOApp.Simple {
 
     } yield server
 
-  def runGraphQLServer(config: AppConfig): Resource[IO, Server] =
+  private def runGraphQLServer(config: AppConfig): Resource[IO, Server] =
     Dispatcher.parallel[IO].flatMap { implicit dispatcher =>
       for {
         xa          <- Database.make[IO](config.db)
         cache       <- Cache.make[IO](config.cache)
         repo         = LoanDataPostgresRepo[IO](xa, cache)
-        api          = graphql.Api[IO](repo)
-        interpreter <- api.graphql.interpreterAsync[IO].toResource
+        graphql      = GraphQLApi[IO](repo).graphql
+        interpreter <- graphql.interpreterAsync[IO].toResource
         server      <- EmberServerBuilder
                          .default[IO]
                          .withHost(config.ember.host)
                          .withPort(config.ember.port)
                          .withIdleTimeout(config.ember.idleTimeout)
                          .withShutdownTimeout(config.ember.shutdownTimeout)
-                         .withHttpWebSocketApp(wsBuilder => graphql.Route[IO](interpreter, wsBuilder).routes.orNotFound)
+                         .withHttpWebSocketApp(wsBuilder => GraphQLRoute[IO](interpreter, wsBuilder).routes.orNotFound)
                          .build
 
       } yield server

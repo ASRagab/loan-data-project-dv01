@@ -49,5 +49,5 @@ object Cache {
   def makeTest[F[_]: Async: Logger](uri: String): Resource[F, Cache[F]] =
     for {
       redis <- Redis[F].utf8(uri)
-    } yield new RedisCache[F](redis, 2.seconds, 2.seconds)
+    } yield new RedisCache[F](redis, cacheTimeout = 2.seconds, ttl = 2.seconds)
 }

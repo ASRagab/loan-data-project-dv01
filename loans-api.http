@@ -42,3 +42,9 @@ Content-Type: application/json
 }
 
 ###
+
+# @name = Health Check
+GET http://localhost:4041/health
+Content-Type: application/json
+
+###

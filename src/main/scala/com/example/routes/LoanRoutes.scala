@@ -14,9 +14,7 @@ import org.typelevel.log4cats.Logger
 class LoanRoutes[F[_]: Concurrent: Logger] private (repo: LoanDataRepo[F]) extends RequestValidationDsl[F] {
 
   given QueryParamDecoder[SortType] =
-    QueryParamDecoder[String].emap(str =>
-      Either.catchNonFatal(SortType.fromStringUnsafe(str)).leftMap(ex => ParseFailure(str, ex.getMessage))
-    )
+    QueryParamDecoder[String].emap(str => SortType.fromStringEither(str).leftMap(error => ParseFailure(str, error)))
   private object SortTypeQueryParamMatcher extends OptionalQueryParamDecoderMatcher[SortType]("sortType")
 
   // POST /api/loans
@@ -25,7 +23,7 @@ class LoanRoutes[F[_]: Concurrent: Logger] private (repo: LoanDataRepo[F]) exten
       val updated = filters.withSortType(sortType.getOrElse(SortType.Default))
       for {
         loans <- repo.findBy(updated)
-        resp  <- Ok(loans.map(_.asJson).asJson)
+        resp  <- Ok(loans.asJson)
       } yield resp
     }
   }

@@ -32,26 +32,36 @@ docker-compose up -d & sbt run
 
 ### Docker Services
 
-The docker compose file spins up a postgres database and a redis cache, it also when creating the database executes a script
-to create the schema and load the loan data located in the `sql` folder. The `init.sql` script reads in the file using a `COPY` command.
+The docker compose file spins up a postgres database and a redis cache, it also when creating the database executes a
+script
+to create the schema and load the loan data located in the `sql` folder. The `init.sql` script reads in the file using
+a `COPY` command.
 
-It will rerun the script ONLY when the container is removed via `docker-compose down` and then "reupped." 
+It will rerun the script ONLY when the container is removed via `docker-compose down` and then "reupped."
 The application will be available at [http://localhost:4041](http://localhost:4041)
 
 ### Server Configuration
 
 In the `application.conf` file, one can choose the server-type, either `rest` or `graphql`. The default is `graphql`.
-If using `rest`, then you can send POST requests to `/api/loans` (see more in the Example Requests section below). 
+If using `rest`, then you can send POST requests to `/api/loans` (see more in the Example Requests section below).
 If using `graphql`, then you can send graphql queries to `/api/graphql`.
 
-### GraphiQL
+### GraphQL Endpoints
 
-The application has a GraphiQL interface available at [http://localhost:4041/graphiql](http://localhost:4041/graphiql)
+- [GraphiQL UI](http://localhost:4041/graphiql)
+- [API](http://localhost:4041/api/graphql)
+- [Websocket](ws://localhost:4041/api/graphql)
+
+### Rest Endpoints
+
+- [Healthcheck](http://localhost:4041/healthcheck)
+- [API](http://localhost:4041/api/loans)
 
 ### Example Requests:
 
-Example requests are located in the `loans-api-graphql.http` or in the `loans-api.http` file and leverage 
-[IntelliJ's HttpClient](https://www.jetbrains.com/help/objc/http-client-in-product-code-editor.html) to execute requests. 
+Example requests are located in the `loans-api-graphql.http` or in the `loans-api.http` file and leverage
+[IntelliJ's HttpClient](https://www.jetbrains.com/help/objc/http-client-in-product-code-editor.html) to execute
+requests.
 The only required request parameter is `size` which represents the maximum number of loans to return. When
 you run the requests, the responses are saved to json files in the `.idea` folder under `httpRequests`
 
@@ -62,7 +72,8 @@ To run the tests, run the following command:
 ```bash
 sbt test
 ```
-Some of the tests use `testcontainers` for Postgres and Redis. 
+
+Some of the tests use `testcontainers` for Postgres and Redis.
 
 ## Things I wished I had more time for
 

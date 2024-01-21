@@ -5,6 +5,7 @@ import doobie.util.fragment.Fragment
 import io.circe.*
 
 import java.text.SimpleDateFormat
+import scala.util.Try
 
 enum SortType(val value: String) {
   case Default    extends SortType("default")
@@ -17,30 +18,19 @@ enum SortType(val value: String) {
 
 object SortType {
   given Encoder[SortType] = Encoder.encodeString.contramap[SortType](sortType => sortType.value)
-  given Decoder[SortType] =
-    Decoder.decodeString.emap(str => Either.catchNonFatal(fromStringUnsafe(str)).leftMap(_.getMessage))
+  given Decoder[SortType] = Decoder.decodeString.emap(fromStringEither)
 
-  val issueDate: Ordering[LoanData] = {
-    val format = new SimpleDateFormat("MMM-yyyy")
-    Ordering.by(loan => loan.issuedDate.map(format.parse))
-  }
-
-  val default: Ordering[LoanData]    = Ordering.by(_.id)
-  val loanAmount: Ordering[LoanData] = Ordering.by(loan => loan.loanAmount.map(value => -value))
-  val grade: Ordering[LoanData]      =
-    Ordering.Tuple2[Option[String], Option[String]].on(loan => (loan.grade, loan.subGrade))
-  val ficoLow: Ordering[LoanData]    = Ordering.by(_.ficoRangeLow)
-  val ficoHigh: Ordering[LoanData]   = Ordering.by(_.ficoRangeHigh)
-
-  def fromStringUnsafe(s: String): SortType = s match {
-    case IssuedDate.value => IssuedDate
-    case LoanAmount.value => LoanAmount
-    case Grade.value      => Grade
-    case FicoLow.value    => FicoLow
-    case FicoHigh.value   => FicoHigh
-    case Default.value    => Default
-    case _                => throw new IllegalArgumentException(s"Invalid sort type: $s")
-  }
+  def fromStringEither(s: String): Either[String, SortType] = Try {
+    s match {
+      case IssuedDate.value => IssuedDate
+      case LoanAmount.value => LoanAmount
+      case Grade.value      => Grade
+      case FicoLow.value    => FicoLow
+      case FicoHigh.value   => FicoHigh
+      case Default.value    => Default
+      case _                => throw new IllegalArgumentException(s"Invalid sort type: $s")
+    }
+  }.toEither.leftMap(_.getMessage)
 
   extension (sortType: SortType) {
     def toFragment: Fragment =
@@ -55,12 +45,12 @@ object SortType {
 
     def toOrdering: Ordering[LoanData] =
       sortType match {
-        case SortType.Default    => SortType.default
-        case SortType.IssuedDate => SortType.issueDate
-        case SortType.LoanAmount => SortType.loanAmount
-        case SortType.Grade      => SortType.grade
-        case SortType.FicoLow    => SortType.ficoLow
-        case SortType.FicoHigh   => SortType.ficoHigh
+        case SortType.Default    => Ordering.by(_.id)
+        case SortType.IssuedDate => Ordering.by(loan => loan.issuedDate.map(new SimpleDateFormat("MMM-yyyy").parse))
+        case SortType.LoanAmount => Ordering.by(loan => loan.loanAmount.map(value => -value))
+        case SortType.Grade      => Ordering.Tuple2[Option[String], Option[String]].on(loan => (loan.grade, loan.subGrade))
+        case SortType.FicoLow    => Ordering.by(_.ficoRangeLow)
+        case SortType.FicoHigh   => Ordering.by(_.ficoRangeHigh)
       }
   }
 }

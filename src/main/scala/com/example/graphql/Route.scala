@@ -18,6 +18,7 @@ class Route[F[_]: Async: Dispatcher: Logger] private (
 )(using runtime: Runtime[Any]) {
   import sttp.tapir.json.circe.{*, given}
 
+  // implicit zio runtime needed to create the Http4sAdapters to convert the endpoints to http4s
   val routes: HttpRoutes[F] = Router(
     "/api/graphql" -> CORS.policy(Http4sAdapter.makeHttpServiceF[F, Any, CalibanError](HttpInterpreter(interpreter))),
     "/ws/graphql"  -> CORS.policy(
