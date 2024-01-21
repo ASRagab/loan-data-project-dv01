@@ -43,7 +43,7 @@ class LoanRoutesSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers with H
         val maybe = for {
           loanGrade   <- data.grade
           filterGrade <- grade
-        } yield loanGrade >= filterGrade
+        } yield loanGrade <= filterGrade
 
         maybe.getOrElse(true)
       }
@@ -127,7 +127,7 @@ class LoanRoutesSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers with H
       response.status shouldBe Ok
       body shouldBe loanList
         .take(LoanDataFilters.Default.size)
-        .filter(_.grade.exists(_ >= "A"))
+        .filter(_.grade.exists(_ <= "A"))
         .sorted(toOrdering(LoanAmount))
     }
   }

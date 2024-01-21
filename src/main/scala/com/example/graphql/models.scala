@@ -3,7 +3,7 @@ package com.example.graphql
 import caliban.CalibanError.ExecutionError
 import caliban.Value.StringValue
 import caliban.interop.cats.implicits.*
-import caliban.schema.Annotations.GQLDescription
+import caliban.schema.Annotations.{GQLDescription, GQLName}
 import caliban.schema.{ArgBuilder, Schema}
 import cats.effect.*
 import cats.effect.std.Dispatcher
@@ -15,6 +15,8 @@ import java.time.YearMonth
 import scala.util.Try
 
 object models {
+
+  @GQLName("LoanDataQueries")
   case class Queries[F[_]](
       @GQLDescription("Return loan data according to the provided filters")
       loanData: LoanDataFilters => F[Vector[LoanData]]
