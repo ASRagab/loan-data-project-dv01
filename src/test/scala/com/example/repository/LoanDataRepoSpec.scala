@@ -40,12 +40,11 @@ class LoanDataRepoSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers with
     Resource.both(transactor, cache).use { case (xa, cache) =>
       for {
         loanData <- LoanDataPostgresRepo[IO](xa, cache)
-                      .findBy(LoanDataFilters(5, None, Some("A"), None).withSortType(LoanAmount))
+                      .findBy(LoanDataFilters(4, None, Some("A"), None).withSortType(LoanAmount))
       } yield {
-        loanData should have size 5
-        loanData.head.loanAmount shouldBe Some(40000)
-        loanData.last.loanAmount shouldBe Some(10000)
-        loanData.forall(_.grade.exists(_ >= "A")) shouldBe true
+        loanData should have size 4
+        loanData.head.loanAmount shouldBe Some(10000)
+        loanData.forall(_.grade.exists(_ <= "A")) shouldBe true
       }
     }
   }

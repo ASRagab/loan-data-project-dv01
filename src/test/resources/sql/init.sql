@@ -30,41 +30,41 @@ VALUES (126355295, 30000, 40000, '60 months', '14.08%', 'C', 'C3', 'Sr. Lead Tra
 INSERT INTO loan_data (id, loan_amount, funded_amount, term, interest_rate, grade, sub_grade, employee_title,
                        home_ownership, issued_date, loan_status, zip_code, state_address, fico_range_low,
                        fico_range_high)
-VALUES (125380890, 20000, 40000, ' 36 months', '  9.93%', 'B', 'B2', 'owner ', 'RENT', 'Dec-2021', 'Current', '980xx',
+VALUES (125380890, 20000, 40000, ' 36 months', '9.93%', 'B', 'B2', 'owner ', 'RENT', 'Dec-2021', 'Current', '980xx',
         'WA', 685, 689);
 INSERT INTO loan_data (id, loan_amount, funded_amount, term, interest_rate, grade, sub_grade, employee_title,
                        home_ownership, issued_date, loan_status, zip_code, state_address, fico_range_low,
                        fico_range_high)
-VALUES (126417358, 20000, 40000, ' 36 months', '  7.35%', 'D', 'D4', 'Senior Java Developer', 'MORTGAGE', 'Dec-2020',
+VALUES (126417358, 20000, 40000, ' 36 months', '7.35%', 'D', 'D4', 'Senior Java Developer', 'MORTGAGE', 'Dec-2020',
         'Current', '553xx', 'MO', 705, 709);
 INSERT INTO loan_data (id, loan_amount, funded_amount, term, interest_rate, grade, sub_grade, employee_title,
                        home_ownership, issued_date, loan_status, zip_code, state_address, fico_range_low,
                        fico_range_high)
-VALUES (126380861, 10000, 40000, '36 months', '  6.08%', 'A', 'A2', 'Engineer', 'MORTGAGE', 'Dec-2019', 'Fully Paid',
+VALUES (126380861, 10000, 40000, '36 months', '6.08%', 'A', 'A2', 'Engineer', 'MORTGAGE', 'Dec-2019', 'Fully Paid',
         '750xx', 'TX', 750, 754);
 INSERT INTO loan_data (id, loan_amount, funded_amount, term, interest_rate, grade, sub_grade, employee_title,
                        home_ownership, issued_date, loan_status, zip_code, state_address, fico_range_low,
                        fico_range_high)
-VALUES (125467821, 9000, 40000, ' 36 months', '  6.08%', 'A', 'A2', 'Editor/Writer', 'MORTGAGE', 'Dec-2018', 'Current',
+VALUES (125467821, 9000, 40000, ' 36 months', '6.08%', 'A', 'A2', 'Editor/Writer', 'MORTGAGE', 'Dec-2018', 'Current',
         '200xx', 'DC', 770, 774);
 INSERT INTO loan_data (id, loan_amount, funded_amount, term, interest_rate, grade, sub_grade, employee_title,
                        home_ownership, issued_date, loan_status, zip_code, state_address, fico_range_low,
                        fico_range_high)
-VALUES (126285300, 8000, 40000, ' 36 months', '  6.08%', 'A', 'A2', 'Loss Mitigation Manager', 'MORTGAGE', 'Dec-2017',
+VALUES (126285300, 8000, 40000, ' 36 months', '6.08%', 'A', 'A2', 'Loss Mitigation Manager', 'MORTGAGE', 'Dec-2017',
         'Fully Paid', '928xx', 'CA', 780, 784);
 INSERT INTO loan_data (id, loan_amount, funded_amount, term, interest_rate, grade, sub_grade, employee_title,
                        home_ownership, issued_date, loan_status, zip_code, state_address, fico_range_low,
                        fico_range_high)
-VALUES (115384090, 7000, 40000, ' 60 months', ' 12.62%', 'C', 'C1', 'Auto body tech', 'OWN', 'Dec-2016', 'Fully Paid',
+VALUES (115384090, 7000, 40000, ' 60 months', '12.62%', 'C', 'C1', 'Auto body tech', 'OWN', 'Dec-2016', 'Fully Paid',
         '347xx', 'FL', 690, 694);
 INSERT INTO loan_data (id, loan_amount, funded_amount, term, interest_rate, grade, sub_grade, employee_title,
                        home_ownership, issued_date, loan_status, zip_code, state_address, fico_range_low,
                        fico_range_high)
-VALUES (126212457, 6000, 40000, ' 36 months', '  5.32%', 'A', 'A1', 'Ammunition Manager', 'MORTGAGE', 'Dec-2015',
+VALUES (126212457, 6000, 40000, ' 36 months', '5.32%', 'A', 'A1', 'Ammunition Manager', 'MORTGAGE', 'Dec-2015',
         'Current', '920xx', 'CA', 725, 729);
 INSERT INTO loan_data (id, loan_amount, funded_amount, term, interest_rate, grade, sub_grade, employee_title,
                        home_ownership, issued_date, loan_status, zip_code, state_address, fico_range_low,
                        fico_range_high)
-VALUES (125519315, 5000, 40000, ' 36 months', '  6.72%', 'B', 'B3', 'Truck driver ', 'MORTGAGE', 'Dec-2014', 'Current',
+VALUES (125519315, 5000, 40000, ' 36 months', '6.72%', 'B', 'B3', 'Truck driver ', 'MORTGAGE', 'Dec-2014', 'Current',
         '191xx', 'PA', 680, 684);
 

@@ -1,11 +1,11 @@
 package com.example.domain
 
+import caliban.schema.Annotations.{GQLDefault, GQLDescription}
+import cats.implicits.*
 import doobie.util.fragment.Fragment
-
-import java.text.SimpleDateFormat
 import io.circe.*
 
-import scala.util.Try
+import java.text.SimpleDateFormat
 
 enum SortType(val value: String) {
   case Default    extends SortType("default")
@@ -18,7 +18,8 @@ enum SortType(val value: String) {
 
 object SortType {
   given Encoder[SortType] = Encoder.encodeString.contramap[SortType](sortType => sortType.value)
-  given Decoder[SortType] = Decoder.decodeString.map(fromString)
+  given Decoder[SortType] =
+    Decoder.decodeString.emap(str => Either.catchNonFatal(fromStringUnsafe(str)).leftMap(_.getMessage))
 
   val issueDate: Ordering[LoanData] = {
     val format = new SimpleDateFormat("MMM-yyyy")
@@ -32,13 +33,14 @@ object SortType {
   val ficoLow: Ordering[LoanData]    = Ordering.by(_.ficoRangeLow)
   val ficoHigh: Ordering[LoanData]   = Ordering.by(_.ficoRangeHigh)
 
-  def fromString(s: String): SortType = s match {
+  def fromStringUnsafe(s: String): SortType = s match {
     case IssuedDate.value => IssuedDate
     case LoanAmount.value => LoanAmount
     case Grade.value      => Grade
     case FicoLow.value    => FicoLow
     case FicoHigh.value   => FicoHigh
-    case _                => Default
+    case Default.value    => Default
+    case _                => throw new IllegalArgumentException(s"Invalid sort type: $s")
   }
 
   extension (sortType: SortType) {

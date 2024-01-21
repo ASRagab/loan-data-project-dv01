@@ -1,5 +1,6 @@
 package com.example.domain
 
+import caliban.schema.Annotations.*
 import cats.Applicative
 import cats.implicits.*
 import com.example.routes.FailureResponse
@@ -76,10 +77,10 @@ object LoanDataFilters {
         filters.minIssuedDate.map(date =>
           fr"TO_DATE(issued_date, 'Mon-YYYY') >= TO_DATE(${date.format(issuedDateFormat)}, 'Mon-YYYY')"
         ),
-        filters.grade.map(gr => fr"grade >= $gr"),
+        filters.grade.map(gr => fr"grade <= $gr"),
         filters.minFico.map(fico => fr"fico_range_low >= $fico")
       )
-
+      
       val sortTypeFragment = filters.sortType.map(_.toFragment).getOrElse(SortType.Default.toFragment)
       val limitFragment    = fr"LIMIT ${filters.size}"
 
