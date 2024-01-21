@@ -60,7 +60,7 @@ object Application extends IOApp.Simple {
     ConfigSource.default
       .loadF[IO, AppConfig]
       .flatMap { config =>
-        lazy val server = if (config.serverType == ServerType.Http) runServer(config) else runGraphQLServer(config)
+        lazy val server = if (config.serverType == ServerType.Rest) runServer(config) else runGraphQLServer(config)
 
         server
           .use(_ => Logger[IO].info(s"Server started at ${config.ember.host}:${config.ember.port}") *> IO.never)

@@ -50,6 +50,6 @@ given ConfigReader[Port] = ConfigReader[Int].emap { raw =>
 }
 
 enum ServerType derives EnumConfigReader {
-  case Http
+  case Rest
   case Graphql
 }
