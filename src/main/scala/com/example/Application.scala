@@ -1,13 +1,11 @@
 package com.example
 
-import caliban.Http4sAdapter
 import caliban.interop.cats.implicits.*
-import caliban.interop.tapir.HttpInterpreter
 import cats.effect.*
 import cats.effect.std.Dispatcher
 import com.example.api.Api
-import com.example.config.AppConfig
 import com.example.config.syntax.*
+import com.example.config.{AppConfig, ServerType}
 import com.example.repository.LoanDataPostgresRepo
 import com.example.services.*
 import org.http4s.ember.server.EmberServerBuilder
@@ -62,7 +60,9 @@ object Application extends IOApp.Simple {
     ConfigSource.default
       .loadF[IO, AppConfig]
       .flatMap { config =>
-        runGraphQLServer(config)
+        lazy val server = if (config.serverType == ServerType.Http) runServer(config) else runGraphQLServer(config)
+
+        server
           .use(_ => Logger[IO].info(s"Server started at ${config.ember.host}:${config.ember.port}") *> IO.never)
           .onError(ex => Logger[IO].error(ex)("Server error"))
       }

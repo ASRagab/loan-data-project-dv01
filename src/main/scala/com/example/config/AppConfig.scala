@@ -4,11 +4,13 @@ import com.comcast.ip4s.{Host, Port}
 import com.zaxxer.hikari.HikariConfig
 import pureconfig.ConfigReader
 import pureconfig.error.CannotConvert
+import pureconfig.generic.derivation.EnumConfigReader
 import pureconfig.generic.derivation.default.*
 
 import scala.concurrent.duration.FiniteDuration
 
-final case class AppConfig(ember: EmberConfig, db: DbConfig, cache: CacheConfig) derives ConfigReader
+final case class AppConfig(ember: EmberConfig, db: DbConfig, cache: CacheConfig, serverType: ServerType)
+    derives ConfigReader
 
 final case class DbConfig(
     driver: String,
@@ -45,4 +47,9 @@ given ConfigReader[Host] = ConfigReader[String].emap { raw =>
 
 given ConfigReader[Port] = ConfigReader[Int].emap { raw =>
   Port.fromInt(raw).toRight(CannotConvert(raw.toString, "Port", s"Invalid port: $raw"))
+}
+
+enum ServerType derives EnumConfigReader {
+  case Http
+  case Graphql
 }

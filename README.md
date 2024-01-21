@@ -38,9 +38,14 @@ to create the schema and load the loan data located in the `sql` folder. The `in
 It will rerun the script ONLY when the container is removed via `docker-compose down` and then "reupped." 
 The application will be available at [http://localhost:4041](http://localhost:4041)
 
+
+### GraphiQL
+
+The application has a GraphiQL interface available at [http://localhost:4041/graphiql](http://localhost:4041/graphiql)
+
 #### Example Requests:
 
-Example requests are located in the `loans-api.http` file and leverage [IntelliJ's HttpClient](https://www.jetbrains.com/help/objc/http-client-in-product-code-editor.html) 
+Example requests are located in the `loans-api-graphql.http` file and leverage [IntelliJ's HttpClient](https://www.jetbrains.com/help/objc/http-client-in-product-code-editor.html) 
 to execute requests. The only required request parameter is `size` which represents the maximum number of loans to return. When
 you run the requests, the responses are saved to json files in the `.idea` folder under `httpRequests`
 
@@ -59,7 +64,6 @@ Some of the tests use `testcontainers` for Postgres and Redis.
 
 - There are some tests and they are useful, but I wished I had some time to request body deserialization tests, also
   fewer "magic" primitives.
-- GraphQL, I can see how it would be valuable for this data, given the number of columns one might need to search for and ranges
 - Validation of Payload could stand to use Validated instead of Either
 
 

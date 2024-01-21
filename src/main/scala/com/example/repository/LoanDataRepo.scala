@@ -2,7 +2,6 @@ package com.example.repository
 
 import cats.effect.*
 import cats.syntax.all.*
-import com.example.domain.SortType.*
 import com.example.domain.{LoanData, LoanDataFilters}
 import com.example.services.Cache
 import doobie.*

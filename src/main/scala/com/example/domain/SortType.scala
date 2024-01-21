@@ -1,6 +1,5 @@
 package com.example.domain
 
-import caliban.schema.Annotations.{GQLDefault, GQLDescription}
 import cats.implicits.*
 import doobie.util.fragment.Fragment
 import io.circe.*

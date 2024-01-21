@@ -1,7 +1,6 @@
 package com.example.api
 
 import cats.effect.Concurrent
-import cats.effect.kernel.Resource
 import cats.implicits.*
 import com.example.repository.LoanDataRepo
 import com.example.routes.{HealthRoutes, LoanRoutes}
