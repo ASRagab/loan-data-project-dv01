@@ -1,0 +1,97 @@
+# @name = Miniumn Valid Request
+GRAPHQL http://localhost:4041/api/graphql
+
+query(
+    $size: Int!,
+    $minIssuedDate: String,
+    $grade: String,
+    $minFico: Int,
+    $sortType: SortType
+) {
+  loanData(
+    size: $size,
+    minIssuedDate: $minIssuedDate,
+    grade: $grade,
+    minFico: $minFico,
+    sortType: $sortType
+  ) {
+    id
+    loanAmount
+    issuedDate
+    grade
+    ficoRangeLow
+  }
+}
+
+{
+  "size": 10
+}
+
+###
+
+# @name = All Parameters Provided
+GRAPHQL http://localhost:4041/api/graphql
+
+query(
+    $size: Int!,
+    $minIssuedDate: String,
+    $grade: String,
+    $minFico: Int,
+    $sortType: SortType
+) {
+  loanData(
+   size: $size,
+    minIssuedDate: $minIssuedDate,
+    grade: $grade,
+    minFico: $minFico,
+    sortType: $sortType
+  ) {
+    id
+    loanAmount
+    issuedDate
+    grade
+    ficoRangeLow
+  }
+}
+
+{
+  "size": 10,
+  "minIssuedDate": "Dec-2017",
+  "grade": "A",
+  "minFico": 700,
+  "sortType": "LoanAmount"
+}
+
+###
+
+# @name = Size 1000 and SortType Grade
+GRAPHQL http://localhost:4041/api/graphql
+
+query(
+    $size: Int!,
+    $minIssuedDate: String,
+    $grade: String,
+    $minFico: Int,
+    $sortType: SortType
+) {
+  loanData(
+   size: $size,
+    minIssuedDate: $minIssuedDate,
+    grade: $grade,
+    minFico: $minFico,
+    sortType: $sortType
+  ) {
+    id
+    loanAmount
+    issuedDate
+    grade
+    ficoRangeLow
+  }
+}
+
+{
+  "size": 1000,
+  "sortType": "Grade"
+}
+
+###

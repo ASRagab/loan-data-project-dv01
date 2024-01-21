@@ -8,12 +8,15 @@ import io.circe.Encoder
 import io.circe.syntax.*
 import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.server.Router
-import org.http4s.{HttpRoutes, QueryParamDecoder, Request, Response}
+import org.http4s.{HttpRoutes, ParseFailure, QueryParamDecoder, Request, Response}
 import org.typelevel.log4cats.Logger
 
 class LoanRoutes[F[_]: Concurrent: Logger] private (repo: LoanDataRepo[F]) extends RequestValidationDsl[F] {
 
-  given QueryParamDecoder[SortType] = QueryParamDecoder[String].map(str => SortType.fromString(str))
+  given QueryParamDecoder[SortType] =
+    QueryParamDecoder[String].emap(str =>
+      Either.catchNonFatal(SortType.fromStringUnsafe(str)).leftMap(ex => ParseFailure(str, ex.getMessage))
+    )
   private object SortTypeQueryParamMatcher extends OptionalQueryParamDecoderMatcher[SortType]("sortType")
 
   // POST /api/loans
